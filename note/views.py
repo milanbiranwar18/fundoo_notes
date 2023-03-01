@@ -21,19 +21,21 @@ class LabelLC(GenericAPIView, ListModelMixin, CreateModelMixin):
 
     def get(self, request, *args, **kwargs):
         try:
+            request.data.update({"user": request.user.id})
             response = self.list(request, *args, **kwargs)
             return Response({"Message": "All Labels Are", "data":response.data, "status":200})
         except Exception as e:
             logging.error(e)
-            return Response({"message": str(e)}, status=400)
+            return Response({"Message": str(e)}, status=400)
 
     def post(self, request, *args, **kwargs):
         try:
+            request.data.update({"user":request.user.id})
             response = self.create(request, *args, **kwargs)
             return Response({"Message": "Label Created Successfully", "data":response.data, "status":201})
         except Exception as e:
             logging.error(e)
-            return Response({"message": str(e)}, status=400)
+            return Response({"Message": str(e)}, status=400)
 
 
 class LabelRUD(GenericAPIView, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin):
@@ -42,25 +44,27 @@ class LabelRUD(GenericAPIView, RetrieveModelMixin, UpdateModelMixin, DestroyMode
 
     def get(self, request, *args, **kwargs):
         try:
+            request.data.update({"user": request.user.id})
             response = self.retrieve(request, *args, **kwargs)
             return Response({"Message": "Label Retrieve Successfully", "data": response.data, "status": 201})
         except Exception as e:
             logging.error(e)
-            return Response({"message": str(e)}, status=400)
+            return Response({"Message": str(e)}, status=400)
 
     def put(self, request, *args, **kwargs):
         try:
+            request.data.update({"user": request.user.id})
             response = self.update(request, *args, **kwargs)
             return Response({"Message": "Label Updated Successfully", "data": response.data, "status": 202})
         except Exception as e:
             logging.error(e)
-            return Response({"message": str(e)}, status=400)
+            return Response({"Message": str(e)}, status=400)
 
     def delete(self, request, *args, **kwargs):
         try:
+            request.data.update({"user": request.user.id})
             response = self.destroy(request, *args, **kwargs)
             return Response({"Message": "Label Deleted Successfully", "data": response.data, "status": 204})
         except Exception as e:
             logging.error(e)
-            return Response({"message": str(e)}, status=400)
-
+            return Response({"Message": str(e)}, status=400)

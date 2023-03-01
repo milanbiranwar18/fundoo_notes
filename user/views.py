@@ -1,5 +1,6 @@
 import logging
 
+from django.contrib.auth import login
 from rest_framework import viewsets
 from rest_framework.response import Response
 from user.models import User
@@ -37,6 +38,10 @@ class Login(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
+            serializer = LoginSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            login(request, serializer.data.get("user"))
             return Response({"Message": "User Login Successfully", "status": 201})
         except Exception as e:
             logging.error(e)
