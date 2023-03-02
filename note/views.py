@@ -26,7 +26,7 @@ class LabelLC(GenericAPIView, ListModelMixin, CreateModelMixin):
         try:
             request.data.update({"user": request.user.id})
             response = self.list(request, *args, **kwargs)
-            return Response({"Message": "All Labels Are", "data": response.data, "status": 200})
+            return Response({"Message": "List of Labels", "data": response.data, "status": 200})
         except Exception as e:
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
@@ -61,7 +61,7 @@ class LabelRUD(GenericAPIView, RetrieveModelMixin, UpdateModelMixin, DestroyMode
         try:
             request.data.update({"user": request.user.id})
             response = self.update(request, *args, **kwargs)
-            return Response({"Message": "Label Updated Successfully", "data": response.data, "status": 202})
+            return Response({"Message": "Label Updated Successfully", "data": response.data, "status": 200})
         except Exception as e:
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
@@ -70,7 +70,7 @@ class LabelRUD(GenericAPIView, RetrieveModelMixin, UpdateModelMixin, DestroyMode
         try:
             request.data.update({"user": request.user.id})
             response = self.destroy(request, *args, **kwargs)
-            return Response({"Message": "Label Deleted Successfully", "data": response.data, "status": 204})
+            return Response({"Message": "Label Deleted Successfully", "data": response.data, "status": 200})
         except Exception as e:
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
@@ -84,9 +84,9 @@ class NoteViewSet(viewsets.ViewSet):
     def list(self, request):
         try:
             request.data.update({"user": request.user.id})
-            note = Note.objects.all()
+            note = Note.objects.filter(user=request.user.id)
             serializer = NoteSerializer(note, many=True)
-            return Response({"Message": "All Notes Are", "data": serializer.data, "status": 200})
+            return Response({"Message": "List of Notes", "data": serializer.data, "status": 200})
         except Exception as e:
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
@@ -94,7 +94,7 @@ class NoteViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk):
         try:
             request.data.update({"user": request.user.id})
-            note = Note.objects.get(id=pk)
+            note = Note.objects.get(id=pk, user=request.user.id)
             serializer = NoteSerializer(note)
             return Response({'Message': "Note Retrieve Successfully", "Data": serializer.data, "status": 200})
         except Exception as e:

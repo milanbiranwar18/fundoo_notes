@@ -1,8 +1,12 @@
 import logging
 
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
 from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from user.models import User
 from user.serializers import RegistrationSerializer, LoginSerializer
 
@@ -41,8 +45,17 @@ class Login(viewsets.ModelViewSet):
             serializer = LoginSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            login(request, serializer.data.get("user"))
+            login(request, serializer.context.get("user"))
             return Response({"Message": "User Login Successfully", "status": 201})
         except Exception as e:
             logging.error(e)
             return Response({"message": str(e)}, status=400)
+
+
+class LogoutAPI(APIView):
+
+    # @login_required
+    def get(self, request):
+        logout(request)
+        return Response({"Message": "Logout Successfully"})
+

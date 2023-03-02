@@ -2,7 +2,6 @@ import logging
 
 from django.contrib.auth import authenticate
 from rest_framework import serializers
-from rest_framework.response import Response
 
 from user.models import User
 
@@ -30,7 +29,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
             return User.objects.create_user(**validated_data)
         except Exception as e:
             logging.error(e)
-            return Response({"message": str(e)})
 
 
 class LoginSerializer(serializers.Serializer):
@@ -44,5 +42,5 @@ class LoginSerializer(serializers.Serializer):
         user = authenticate(**validated_data)
         if not user:
             raise Exception('Invalid Credentials')
-        validated_data.update({'user': user})
+        self.context.update({"user": user})
         return user

@@ -9,4 +9,6 @@ urlpatterns = [
     path('note/<int:pk>', views.NoteViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}),
          name='note'),
 
+
+
 ]
