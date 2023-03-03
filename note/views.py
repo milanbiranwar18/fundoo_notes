@@ -138,39 +138,55 @@ class NoteViewSet(viewsets.ViewSet):
 
 class IsArchive(APIView):
     def put(self, request, id):
-        request.data.update({"user": request.user.id})
-        note = Note.objects.get(id=id, user=request.user.id)
-        if note.isArchive == False:
-            note.isArchive = True
-            note.save()
-            return Response({"Message": "Note Archive successfully"})
-        elif note.isArchive == True:
-            note.isArchive = False
-            note.save()
-            return Response({"Message": "Note UnArchive successfully"})
+        try:
+            request.data.update({"user": request.user.id})
+            note = Note.objects.get(id=id, user=request.user.id)
+            if note.isArchive == False:
+                note.isArchive = True
+                note.save()
+                return Response({"Message": "Note Archive successfully"})
+            elif note.isArchive == True:
+                note.isArchive = False
+                note.save()
+                return Response({"Message": "Note UnArchive successfully"})
+        except Exception as e:
+            logging.error(e)
+            return Response({"Message": str(e)}, status=400)
 
     def get(self, request):
-        request.data.update({"user": request.user.id})
-        note = Note.objects.filter(isArchive=True, user=request.user.id)
-        serialiser = NoteSerializer(note, many=True)
-        return Response({"Message": "List of Archive Notes", "data": serialiser.data})
+        try:
+            request.data.update({"user": request.user.id})
+            note = Note.objects.filter(isArchive=True, user=request.user.id)
+            serialiser = NoteSerializer(note, many=True)
+            return Response({"Message": "List of Archive Notes", "data": serialiser.data})
+        except Exception as e:
+            logging.error(e)
+            return Response({"Message": str(e)}, status=400)
 
 
 class IsTrash(APIView):
     def put(self, request, id):
-        request.data.update({"user": request.user.id})
-        note = Note.objects.get(id=id, user=request.user.id)
-        if note.isTrash == False:
-            note.isTrash = True
-            note.save()
-            return Response({"Message": "Note Trash successfully"})
-        elif note.isTrash == True:
-            note.isTrash = False
-            note.save()
-            return Response({"Message": "Note UnTrash successfully"})
+        try:
+            request.data.update({"user": request.user.id})
+            note = Note.objects.get(id=id, user=request.user.id)
+            if note.isTrash == False:
+                note.isTrash = True
+                note.save()
+                return Response({"Message": "Note Trash successfully"})
+            elif note.isTrash == True:
+                note.isTrash = False
+                note.save()
+                return Response({"Message": "Note UnTrash successfully"})
+        except Exception as e:
+            logging.error(e)
+            return Response({"Message": str(e)}, status=400)
 
     def get(self, request):
-        request.data.update({"user": request.user.id})
-        note = Note.objects.filter(isTrash=True, user=request.user.id)
-        serialiser = NoteSerializer(note, many=True)
-        return Response({"Message": "List of Trash Notes", "data": serialiser.data})
+        try:
+            request.data.update({"user": request.user.id})
+            note = Note.objects.filter(isTrash=True, user=request.user.id)
+            serialiser = NoteSerializer(note, many=True)
+            return Response({"Message": "List of Trash Notes", "data": serialiser.data})
+        except Exception as e:
+            logging.error(e)
+            return Response({"Message": str(e)}, status=400)
