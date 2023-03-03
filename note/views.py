@@ -139,13 +139,12 @@ class NoteViewSet(viewsets.ViewSet):
 class IsArchive(APIView):
     def put(self, request, id):
         try:
-            request.data.update({"user": request.user.id})
             note = Note.objects.get(id=id, user=request.user.id)
-            if note.isArchive == False:
+            if not note.isArchive:
                 note.isArchive = True
                 note.save()
                 return Response({"Message": "Note Archive successfully"})
-            elif note.isArchive == True:
+            elif note.isArchive:
                 note.isArchive = False
                 note.save()
                 return Response({"Message": "Note UnArchive successfully"})
@@ -155,8 +154,7 @@ class IsArchive(APIView):
 
     def get(self, request):
         try:
-            request.data.update({"user": request.user.id})
-            note = Note.objects.filter(isArchive=True, user=request.user.id)
+            note = Note.objects.filter(isArchive=True, isTrash=False, user=request.user.id)
             serialiser = NoteSerializer(note, many=True)
             return Response({"Message": "List of Archive Notes", "data": serialiser.data})
         except Exception as e:
@@ -167,13 +165,12 @@ class IsArchive(APIView):
 class IsTrash(APIView):
     def put(self, request, id):
         try:
-            request.data.update({"user": request.user.id})
             note = Note.objects.get(id=id, user=request.user.id)
-            if note.isTrash == False:
+            if not note.isTrash:
                 note.isTrash = True
                 note.save()
                 return Response({"Message": "Note Trash successfully"})
-            elif note.isTrash == True:
+            elif note.isTrash:
                 note.isTrash = False
                 note.save()
                 return Response({"Message": "Note UnTrash successfully"})
@@ -183,8 +180,7 @@ class IsTrash(APIView):
 
     def get(self, request):
         try:
-            request.data.update({"user": request.user.id})
-            note = Note.objects.filter(isTrash=True, user=request.user.id)
+            note = Note.objects.filter(isTrash=True, isArchive=False, user=request.user.id)
             serialiser = NoteSerializer(note, many=True)
             return Response({"Message": "List of Trash Notes", "data": serialiser.data})
         except Exception as e:
