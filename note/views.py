@@ -5,6 +5,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, \
     DestroyModelMixin
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from note.models import Labels, Note
 from note.serializers import LabelSerializer, NoteSerializer
@@ -133,3 +134,43 @@ class NoteViewSet(viewsets.ViewSet):
         except Exception as e:
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
+
+
+class IsArchive(APIView):
+    def put(self, request, id):
+        request.data.update({"user": request.user.id})
+        note = Note.objects.get(id=id, user=request.user.id)
+        if note.isArchive == False:
+            note.isArchive = True
+            note.save()
+            return Response({"Message": "Note Archive successfully"})
+        elif note.isArchive == True:
+            note.isArchive = False
+            note.save()
+            return Response({"Message": "Note UnArchive successfully"})
+
+    def get(self, request):
+        request.data.update({"user": request.user.id})
+        note = Note.objects.filter(isArchive=True, user=request.user.id)
+        serialiser = NoteSerializer(note, many=True)
+        return Response({"Message": "List of Archive Notes", "data": serialiser.data})
+
+
+class IsTrash(APIView):
+    def put(self, request, id):
+        request.data.update({"user": request.user.id})
+        note = Note.objects.get(id=id, user=request.user.id)
+        if note.isTrash == False:
+            note.isTrash = True
+            note.save()
+            return Response({"Message": "Note Trash successfully"})
+        elif note.isTrash == True:
+            note.isTrash = False
+            note.save()
+            return Response({"Message": "Note UnTrash successfully"})
+
+    def get(self, request):
+        request.data.update({"user": request.user.id})
+        note = Note.objects.filter(isTrash=True, user=request.user.id)
+        serialiser = NoteSerializer(note, many=True)
+        return Response({"Message": "List of Trash Notes", "data": serialiser.data})
