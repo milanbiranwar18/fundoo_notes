@@ -6,6 +6,7 @@ from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveMode
     DestroyModelMixin
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from note.tasks import send_mail_function
 
 from note.models import Labels, Note
 from note.serializers import LabelSerializer, NoteSerializer
@@ -18,7 +19,7 @@ logging.basicConfig(filename="note_label.log",
 
 class LabelLC(GenericAPIView, ListModelMixin, CreateModelMixin):
     """
-    Mixin class for create and retrieve label
+    Class for create and retrieve label using mixins
     """
     queryset = Labels.objects.all()
     serializer_class = LabelSerializer
@@ -44,7 +45,7 @@ class LabelLC(GenericAPIView, ListModelMixin, CreateModelMixin):
 
 class LabelRUD(GenericAPIView, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin):
     """
-    Mixin class for retrieve, update and delete the label
+    Class for retrieve, update and delete the label using mixins
     """
     queryset = Labels.objects.all()
     serializer_class = LabelSerializer
@@ -84,6 +85,7 @@ class NoteViewSet(viewsets.ViewSet):
 
     def list(self, request):
         try:
+            send_mail_function.delay()
             request.data.update({"user": request.user.id})
             note = Note.objects.filter(user=request.user.id)
             serializer = NoteSerializer(note, many=True)

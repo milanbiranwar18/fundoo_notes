@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     'user',
     'rest_framework',
     'note',
+    'celery',
+    'django_celery_results',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -137,3 +140,30 @@ REST_FRAMEWORK = {
         "user.utils.SessionAuth",
     ]
 }
+
+
+
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Kolkata'
+
+CELERY_RESULT_BACKEND = 'django-db'
+
+CELERY_IMPORTS = [
+    'note.tasks',
+]
+
+# CELERY BEAT
+# CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+# SMTP Settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'milanbiranwar06@gmail.com'
+DEFAULT_FROM_EMAIL = 'Celery <milanbiranwar06@gmail.com>'
+EMAIL_HOST_PASSWORD = 'chlqqwlgxgoliljv'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
