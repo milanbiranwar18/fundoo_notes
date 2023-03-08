@@ -18,10 +18,8 @@ def create_reminder(sender, instance, **kwargs):
         rem_date = instance.reminder.date()
         no_of_days = (rem_date - cur_date.date()).days
         rem_time = datetime.now() + timedelta(days=no_of_days)
-        month = rem_time.day,
-        year = instance.reminder.month
-        schedule, created = CrontabSchedule.objects.get_or_create(hour=hrs, minute=min, day_of_month=month,
-                                                                  month_of_year=year)
+        schedule, created = CrontabSchedule.objects.get_or_create(hour=hrs, minute=min, day_of_month=rem_time.day,
+                                                                  month_of_year=instance.reminder.month)
         task = PeriodicTask.objects.create(crontab=schedule, name="schedule_mail_task_" + id,
                                            task='note.tasks.send_mail_function',
                                            args=json.dumps(
