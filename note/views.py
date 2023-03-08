@@ -6,7 +6,6 @@ from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveMode
     DestroyModelMixin
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from note.tasks import send_mail_function
 
 from note.models import Labels, Note
 from note.serializers import LabelSerializer, NoteSerializer
@@ -85,7 +84,6 @@ class NoteViewSet(viewsets.ViewSet):
 
     def list(self, request):
         try:
-            send_mail_function.delay()
             request.data.update({"user": request.user.id})
             note = Note.objects.filter(user=request.user.id)
             serializer = NoteSerializer(note, many=True)
