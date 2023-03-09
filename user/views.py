@@ -2,6 +2,7 @@ import logging
 
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -17,6 +18,7 @@ logging.basicConfig(filename="user_regi.log",
                     datefmt='%Y-%m-%d %H:%M:%S')
 
 
+@swagger_auto_schema(request_body=RegistrationSerializer, operation_summary='Post UserRegistrations')
 class Registration(viewsets.ModelViewSet):
     """
     Class for user registration
@@ -40,6 +42,7 @@ class Login(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = LoginSerializer
 
+    @swagger_auto_schema(request_body=LoginSerializer, operation_summary='Post UserLogin')
     def create(self, request, *args, **kwargs):
         try:
             serializer = LoginSerializer(data=request.data)
@@ -54,8 +57,10 @@ class Login(viewsets.ModelViewSet):
 
 class LogoutAPI(APIView):
 
-    # @login_required
+    @swagger_auto_schema(operation_summary='GET User Logout')
     def get(self, request):
-        logout(request)
-        return Response({"Message": "Logout Successfully"})
+        if request.user.is_authenticated:
+            logout(request)
+            return Response({"Message": "Logout Successfully"})
+        return Response({"Message": "User already logout"})
 

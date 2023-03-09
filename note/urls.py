@@ -12,7 +12,9 @@ urlpatterns = [
     path('trash/', views.IsTrash.as_view(), name='trash'),
     path('archive/<int:id>', views.IsArchive.as_view(), name='archive'),
     path('trash/<int:id>', views.IsTrash.as_view(), name='trash'),
-
+    path('collaborator/<int:id>', views.Collaborator.as_view(), name='collaborator'),
 
 
 ]
+
+

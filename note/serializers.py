@@ -1,6 +1,8 @@
+from django.db.models import Q
 from rest_framework import serializers
 
 from note.models import Labels, Note
+from user.models import User
 
 
 class LabelSerializer(serializers.ModelSerializer):
@@ -36,14 +38,27 @@ class NoteSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
 
-        label_names = self.initial_data.get("label")
+        label_name_list = self.initial_data.get("label")
+        collab_list = self.initial_data.get("collaborator")
         user = validated_data.get("user")
         note = Note.objects.create(**validated_data)
-        for lab in label_names:
-            labels = Labels.objects.filter(label_name=lab, user=user)
-            if labels.exists():
-                note.label.add(labels.first())
-            else:
-                labels = Labels.objects.create(label_name=lab, user=user)
-                note.label.add(labels)
+
+        if collab_list is not None:
+
+            for user_name in collab_list:
+                try:
+                    c_user = User.objects.get(username=user_name)
+                    if c_user != user:
+                        note.collaborator.add(c_user)
+                except:
+                    pass
+
+        if label_name_list is not None:
+            for lab in label_name_list:
+                labels = Labels.objects.filter(label_name=lab, user=user)
+                if labels.exists():
+                    note.label.add(labels.first())
+                else:
+                    labels = Labels.objects.create(label_name=lab, user=user)
+                    note.label.add(labels)
         return note
