@@ -1,6 +1,7 @@
 import logging
-from drf_yasg import openapi
+
 from django.db.models import Q
+from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets
 from rest_framework.generics import GenericAPIView
@@ -209,26 +210,13 @@ class IsTrash(APIView):
             return Response({"Message": str(e)}, status=400)
 
 
-
 class Collaborator(APIView):
-    # param1 = openapi.Parameter('collaborator',
-    #                            in_=openapi.IN_QUERY,
-    #                            description='description of param',
-    #                            type=openapi.TYPE_ARRAY,
-    #                            items=openapi.Items(type=openapi.TYPE_STRING),
-    #                             required = True)
-    @swagger_auto_schema(request_body=openapi.Schema(param1 = openapi.Parameter('collaborator',
-                               in_=openapi.IN_QUERY,
-                               description='description of param',
-                               type=openapi.TYPE_ARRAY,
-                               items=openapi.Items(type=openapi.TYPE_STRING),
-                                required = True),
-                                 type=openapi.TYPE_OBJECT),
+
+    @swagger_auto_schema(request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT, properties={
+            'collaborator': openapi.Schema(type=openapi.TYPE_ARRAY,
+                                           items=openapi.Items(type=openapi.TYPE_STRING))}),
         responses={201: "ok", 400: "BAD REQUEST"})
-    # @swagger_auto_schema(request_body=openapi.Schema(
-    #     type=openapi.TYPE_OBJECT, properties={'collaborator': openapi.Schema(type=openapi.TYPE_ARRAY)}),
-    #     responses={201: "ok", 400: "BAD REQUEST"})
-    # @swagger_auto_schema(operation_summary='add Collaborator')
     def post(self, request, id):
         try:
             note = Note.objects.get(id=id, user=request.user.id)
@@ -242,15 +230,18 @@ class Collaborator(APIView):
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
 
-    @swagger_auto_schema(operation_summary='DELETE Collaborator')
-    def delete(self, request, note_id):
+    @swagger_auto_schema(request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT, properties={
+            'collaborator': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Items(type=openapi.TYPE_STRING))}),
+        responses={201: "ok", 400: "BAD REQUEST"})
+    def delete(self, request, id):
         try:
-            note = Note.objects.filter(id=id, user=request.user.id)
+            note = Note.objects.get(id=id, user=request.user.id)
             collab_list = request.data.get('collaborator')
             for user_name in collab_list:
                 user = User.objects.get(username=user_name)
                 if request.user != user:
                     note.collaborator.remove(user)
-            return Response({"Message": "Collaborator Added Successfully", 'status': 200})
+            return Response({"Message": "Collaborator Deleted Successfully", 'status': 200})
         except Exception as e:
             return Response({"message": str(e)}, status=400)

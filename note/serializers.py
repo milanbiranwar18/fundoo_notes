@@ -62,3 +62,4 @@ class NoteSerializer(serializers.ModelSerializer):
                     labels = Labels.objects.create(label_name=lab, user=user)
                     note.label.add(labels)
         return note
+
