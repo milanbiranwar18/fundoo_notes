@@ -6,7 +6,6 @@ from fundoo_notes import settings
 
 @shared_task(bind=True)
 def add_fun(self):
-    print("hello")
     return "done"
 
 
