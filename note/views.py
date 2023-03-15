@@ -9,10 +9,10 @@ from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveMode
     DestroyModelMixin
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from note.models import Labels, Note
 from note.serializers import LabelSerializer, NoteSerializer
 from user.models import User
+from note.redis_task import RedisNote
 
 logging.basicConfig(filename="note_label.log",
                     filemode='a',
@@ -95,6 +95,9 @@ class NoteViewSet(viewsets.ViewSet):
     @swagger_auto_schema(operation_summary='Get Notes')
     def list(self, request):
         try:
+            redis_note_data = RedisNote().get(request.user.id)
+            if redis_note_data is not None:
+                return Response({'Message': "List of Notes", "Data": redis_note_data, "status": 200})
             request.data.update({"user": request.user.id})
             note = Note.objects.filter(Q(user=request.user.id) | Q(collaborator__id=request.user.id), isArchive=False,
                                        isTrash=False).distinct()
@@ -107,10 +110,14 @@ class NoteViewSet(viewsets.ViewSet):
     @swagger_auto_schema(operation_summary='Retrieve One Note')
     def retrieve(self, request, pk):
         try:
-            request.data.update({"user": request.user.id})
-            note = Note.objects.get(id=pk, user=request.user.id)
-            serializer = NoteSerializer(note)
-            return Response({'Message': "Note Retrieve Successfully", "Data": serializer.data, "status": 200})
+            redis_note_data = RedisNote().get(request.user.id)
+            if str(pk) in redis_note_data.keys():
+                return Response({'Message': "Note Retrieve Successfully", "Data": redis_note_data, "status": 200})
+            else:
+                request.data.update({"user": request.user.id})
+                note = Note.objects.get(id=pk, user=request.user.id)
+                serializer = NoteSerializer(note)
+                return Response({'Message': "Note Retrieve Successfully", "Data": serializer.data, "status": 200})
         except Exception as e:
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
@@ -122,19 +129,21 @@ class NoteViewSet(viewsets.ViewSet):
             serializer = NoteSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            RedisNote().save(serializer.data, request.user.id)
             return Response({'Message': "Note Created Successfully", "Data": serializer.data, "status": 201})
         except Exception as e:
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
 
     @swagger_auto_schema(request_body=NoteSerializer, operation_summary='PUT Note')
-    def update(self, request, pk):
+    def update(self, request):
         try:
             request.data.update({"user": request.user.id})
-            note = Note.objects.get(id=pk)
+            note = Note.objects.get(id=request.data.get('id'))
             serializer = NoteSerializer(note, data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            RedisNote().save(request.data, request.user.id)
             return Response({'Message': "Note Updated Successfully", "Data": serializer.data, "status": 200})
         except Exception as e:
             logging.error(e)
@@ -146,6 +155,7 @@ class NoteViewSet(viewsets.ViewSet):
             request.data.update({"user": request.user.id})
             note = Note.objects.get(id=pk)
             note.delete()
+            RedisNote().delete(pk, request.user.id)
             return Response({'Message': 'Note Deleted Successfully', "status": 200})
         except Exception as e:
             logging.error(e)
