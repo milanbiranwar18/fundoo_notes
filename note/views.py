@@ -98,7 +98,6 @@ class NoteViewSet(viewsets.ViewSet):
             redis_note_data = RedisNote().get(request.user.id)
             if redis_note_data is not None:
                 return Response({'Message': "List of Notes", "Data": redis_note_data, "status": 200})
-            request.data.update({"user": request.user.id})
             note = Note.objects.filter(Q(user=request.user.id) | Q(collaborator__id=request.user.id), isArchive=False,
                                        isTrash=False).distinct()
             serializer = NoteSerializer(note, many=True)
@@ -114,7 +113,6 @@ class NoteViewSet(viewsets.ViewSet):
             if str(pk) in redis_note_data.keys():
                 return Response({'Message': "Note Retrieve Successfully", "Data": redis_note_data, "status": 200})
             else:
-                request.data.update({"user": request.user.id})
                 note = Note.objects.get(id=pk, user=request.user.id)
                 serializer = NoteSerializer(note)
                 return Response({'Message': "Note Retrieve Successfully", "Data": serializer.data, "status": 200})
@@ -152,7 +150,6 @@ class NoteViewSet(viewsets.ViewSet):
     @swagger_auto_schema(operation_summary='DELETE Note')
     def destroy(self, request, pk):
         try:
-            request.data.update({"user": request.user.id})
             note = Note.objects.get(id=pk)
             note.delete()
             RedisNote().delete(pk, request.user.id)
@@ -171,11 +168,11 @@ class IsArchive(APIView):
             if not note.isArchive:
                 note.isArchive = True
                 note.save()
-                return Response({"Message": "Note Archive successfully"})
+                return Response({"Message": "Note Archive successfully",  "status": 200})
             elif note.isArchive:
                 note.isArchive = False
                 note.save()
-                return Response({"Message": "Note UnArchive successfully"})
+                return Response({"Message": "Note UnArchive successfully", "status": 200})
         except Exception as e:
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
@@ -185,7 +182,7 @@ class IsArchive(APIView):
         try:
             note = Note.objects.filter(isArchive=True, isTrash=False, user=request.user.id)
             serialiser = NoteSerializer(note, many=True)
-            return Response({"Message": "List of Archive Notes", "data": serialiser.data})
+            return Response({"Message": "List of Archive Notes", "data": serialiser.data,  "status": 200})
         except Exception as e:
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
@@ -200,11 +197,11 @@ class IsTrash(APIView):
             if not note.isTrash:
                 note.isTrash = True
                 note.save()
-                return Response({"Message": "Note Trash successfully"})
+                return Response({"Message": "Note Trash successfully",  "status": 200})
             elif note.isTrash:
                 note.isTrash = False
                 note.save()
-                return Response({"Message": "Note UnTrash successfully"})
+                return Response({"Message": "Note UnTrash successfully",  "status": 200})
         except Exception as e:
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
@@ -214,7 +211,7 @@ class IsTrash(APIView):
         try:
             note = Note.objects.filter(isTrash=True, isArchive=False, user=request.user.id)
             serialiser = NoteSerializer(note, many=True)
-            return Response({"Message": "List of Trash Notes", "data": serialiser.data})
+            return Response({"Message": "List of Trash Notes", "data": serialiser.data,  "status": 200})
         except Exception as e:
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
@@ -235,7 +232,7 @@ class Collaborator(APIView):
                 c_user = User.objects.get(username=user_name)
                 if request.user != c_user:
                     note.collaborator.add(c_user)
-            return Response({"Message": "Collaborator Added Successfully", 'status': 200})
+            return Response({"Message": "Collaborator Added Successfully", 'status': 201})
         except Exception as e:
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
