@@ -1,5 +1,5 @@
 import json
-
+import pdb
 from django.test import TestCase
 from django.urls import reverse
 
@@ -10,7 +10,6 @@ from .test_setup import TestSetUp
 class ViewsTestCase(TestSetUp):
     def test_user_registration(self):
         api_response = self.client.post(self.register_url, self.registration_user_data, format="json")
-        # import pdb
         # pdb.set_trace()            # in terminal give res.data to see all data
 
         self.assertEqual(api_response.data['data'].get('email'), self.registration_user_data["email"])
@@ -40,6 +39,7 @@ class ViewsTestCaseWithFaker(TestSetUp):
         self.assertEqual(api_response.data['data'].get('last_name'), self.regist_user_data['last_name'])
         self.assertEqual(api_response.data['data'].get('username'), self.regist_user_data['username'])
         self.assertEqual(api_response.data['status'], 201)
+
 
     def test_user_login(self):
         reg_api_response = self.client.post(self.register_url, self.regist_user_data, format="json")

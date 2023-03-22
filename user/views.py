@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 
 from user.models import User
 from user.serializers import RegistrationSerializer, LoginSerializer
-
+from user.utils import JWT
 
 logging.basicConfig(filename="user_regi.log",
                     filemode='a',
@@ -49,7 +49,10 @@ class Login(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             login(request, serializer.context.get("user"))
-            return Response({"Message": "User Login Successfully", "status": 201})
+            # user = serializer.context.get("user")
+            user = User.objects.get(username=serializer.data.get("username"))
+            token = JWT().encode(data={"user_id": user.id})
+            return Response({"Message": "User Login Successfully", "token":token, "status": 201})
         except Exception as e:
             logging.error(e)
             return Response({"message": str(e)}, status=400)
@@ -61,6 +64,6 @@ class LogoutAPI(APIView):
     def get(self, request):
         if request.user.is_authenticated:
             logout(request)
-            return Response({"Message": "Logout Successfully"})
+            return Response({"Message": "Logout Successfully", "status": 200})
         return Response({"Message": "User already logout"})
 

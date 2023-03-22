@@ -16,11 +16,6 @@ class TestSetUp(APITestCase):
         self.get_is_archive_url = reverse('archive')
         self.get_is_trash_url = reverse('trash')
 
-
-
-
-
-
         self.registration_user_data = {
             'email': 'email@gmail.com',
             'username': "milan",
@@ -40,7 +35,7 @@ class TestSetUp(APITestCase):
             "first_name": self.fake.first_name(),
             "last_name": self.fake.last_name(),
             "location": self.fake.city(),
-            "mob_num": 9586584
+            "mob_num": 985698
         }
 
         self.login_user_data = {
@@ -65,8 +60,6 @@ class TestSetUp(APITestCase):
         self.update_label_data = {
             "label_name": "meeting cancelled"
         }
-
-
 
         return super().setUp()
 

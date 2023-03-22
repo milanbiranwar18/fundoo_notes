@@ -13,6 +13,7 @@ from note.models import Labels, Note
 from note.serializers import LabelSerializer, NoteSerializer
 from user.models import User
 from note.redis_task import RedisNote
+from user.utils import verify_token
 
 logging.basicConfig(filename="note_label.log",
                     filemode='a',
@@ -30,17 +31,16 @@ class LabelLC(GenericAPIView, ListModelMixin, CreateModelMixin):
     @swagger_auto_schema(operation_summary='GET Labels')
     def get(self, request, *args, **kwargs):
         try:
-            request.data.update({"user": request.user.id})
             response = self.list(request, *args, **kwargs)
             return Response({"Message": "List of Labels", "data": response.data, "status": 200})
         except Exception as e:
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
 
+    @verify_token
     @swagger_auto_schema(request_body=LabelSerializer, operation_summary='POST Label')
     def post(self, request, *args, **kwargs):
         try:
-            request.data.update({"user": request.user.id})
             response = self.create(request, *args, **kwargs)
             return Response({"Message": "Label Created Successfully", "data": response.data, "status": 201})
         except Exception as e:
@@ -55,30 +55,31 @@ class LabelRUD(GenericAPIView, RetrieveModelMixin, UpdateModelMixin, DestroyMode
     queryset = Labels.objects.all()
     serializer_class = LabelSerializer
 
+    @verify_token
     @swagger_auto_schema(operation_summary='Retrieve One Label')
     def get(self, request, *args, **kwargs):
         try:
-            request.data.update({"user": request.user.id})
             response = self.retrieve(request, *args, **kwargs)
             return Response({"Message": "Label Retrieve Successfully", "data": response.data, "status": 201})
         except Exception as e:
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
 
+    @verify_token
     @swagger_auto_schema(request_body=LabelSerializer, operation_summary='PUT Label')
     def put(self, request, *args, **kwargs):
         try:
-            request.data.update({"user": request.user.id})
+            # request.data.update({"user": request.user.id})
             response = self.update(request, *args, **kwargs)
             return Response({"Message": "Label Updated Successfully", "data": response.data, "status": 200})
         except Exception as e:
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
 
+    @verify_token
     @swagger_auto_schema(operation_summary='DELETE Label')
     def delete(self, request, *args, **kwargs):
         try:
-            request.data.update({"user": request.user.id})
             response = self.destroy(request, *args, **kwargs)
             return Response({"Message": "Label Deleted Successfully", "data": response.data, "status": 200})
         except Exception as e:
@@ -92,6 +93,7 @@ class NoteViewSet(viewsets.ViewSet):
     """
     serializer_class = NoteSerializer
 
+    @verify_token
     @swagger_auto_schema(operation_summary='Get Notes')
     def list(self, request):
         try:
@@ -106,6 +108,7 @@ class NoteViewSet(viewsets.ViewSet):
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
 
+    @verify_token
     @swagger_auto_schema(operation_summary='Retrieve One Note')
     def retrieve(self, request, pk):
         try:
@@ -120,10 +123,10 @@ class NoteViewSet(viewsets.ViewSet):
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
 
+    @verify_token
     @swagger_auto_schema(request_body=NoteSerializer, operation_summary='POST Notes')
     def create(self, request):
         try:
-            request.data.update({"user": request.user.id})
             serializer = NoteSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -133,10 +136,10 @@ class NoteViewSet(viewsets.ViewSet):
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
 
+    @verify_token
     @swagger_auto_schema(request_body=NoteSerializer, operation_summary='PUT Note')
     def update(self, request):
         try:
-            request.data.update({"user": request.user.id})
             note = Note.objects.get(id=request.data.get('id'))
             serializer = NoteSerializer(note, data=request.data)
             serializer.is_valid(raise_exception=True)
@@ -147,6 +150,7 @@ class NoteViewSet(viewsets.ViewSet):
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
 
+    @verify_token
     @swagger_auto_schema(operation_summary='DELETE Note')
     def destroy(self, request, pk):
         try:
@@ -160,7 +164,7 @@ class NoteViewSet(viewsets.ViewSet):
 
 
 class IsArchive(APIView):
-
+    @verify_token
     @swagger_auto_schema(operation_summary='PUT Archive')
     def put(self, request, id):
         try:
@@ -177,6 +181,7 @@ class IsArchive(APIView):
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
 
+    @verify_token
     @swagger_auto_schema(operation_summary='GET Archive')
     def get(self, request):
         try:
@@ -189,7 +194,7 @@ class IsArchive(APIView):
 
 
 class IsTrash(APIView):
-
+    @verify_token
     @swagger_auto_schema(operation_summary='PUT Trash')
     def put(self, request, id):
         try:
@@ -206,6 +211,7 @@ class IsTrash(APIView):
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
 
+    @verify_token
     @swagger_auto_schema(operation_summary='GET Trash')
     def get(self, request):
         try:
@@ -218,7 +224,7 @@ class IsTrash(APIView):
 
 
 class Collaborator(APIView):
-
+    @verify_token
     @swagger_auto_schema(request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT, properties={
             'collaborator': openapi.Schema(type=openapi.TYPE_ARRAY,
@@ -237,6 +243,7 @@ class Collaborator(APIView):
             logging.error(e)
             return Response({"Message": str(e)}, status=400)
 
+    @verify_token
     @swagger_auto_schema(request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT, properties={
             'collaborator': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Items(type=openapi.TYPE_STRING))}),
