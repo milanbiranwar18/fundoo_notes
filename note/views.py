@@ -28,6 +28,7 @@ class LabelLC(GenericAPIView, ListModelMixin, CreateModelMixin):
     queryset = Labels.objects.all()
     serializer_class = LabelSerializer
 
+    @verify_token
     @swagger_auto_schema(operation_summary='GET Labels')
     def get(self, request, *args, **kwargs):
         try:
@@ -55,7 +56,7 @@ class LabelRUD(GenericAPIView, RetrieveModelMixin, UpdateModelMixin, DestroyMode
     queryset = Labels.objects.all()
     serializer_class = LabelSerializer
 
-    @verify_token
+
     @swagger_auto_schema(operation_summary='Retrieve One Label')
     def get(self, request, *args, **kwargs):
         try:
@@ -69,7 +70,6 @@ class LabelRUD(GenericAPIView, RetrieveModelMixin, UpdateModelMixin, DestroyMode
     @swagger_auto_schema(request_body=LabelSerializer, operation_summary='PUT Label')
     def put(self, request, *args, **kwargs):
         try:
-            # request.data.update({"user": request.user.id})
             response = self.update(request, *args, **kwargs)
             return Response({"Message": "Label Updated Successfully", "data": response.data, "status": 200})
         except Exception as e:

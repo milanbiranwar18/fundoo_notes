@@ -52,11 +52,23 @@ def verify_token(function):
         if not decoded:
             return Response({"Message":"Token Authentication required"})
         user_id = decoded.get("user_id")
-        print(user_id)
         if not user_id:
             return Response({"Message":"Invalid user"}, status=400)
+        request.POST._mutable = True
         request.data.update({"user": user_id})
+        request.POST._mutable = False
 
+        # # remember old state
+        # _mutable = request.data._mutable
+        #
+        # # set to mutable
+        # request.data._mutable = True
+        #
+        # # сhange the values you want
+        # request.data.update({"user": user_id})
+        #
+        # # set mutable flag back
+        # request.data._mutable = _mutable
         return function(self, request, *args, **kwargs)
     return wrapper
 

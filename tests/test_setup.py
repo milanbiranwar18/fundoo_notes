@@ -6,13 +6,8 @@ from faker import Faker
 class TestSetUp(APITestCase):
 
     def setUp(self):
-        self.register_url = reverse('registration')
-        self.login_url = reverse('login')
-        self.create_note_url = reverse('note')
-        self.get_note_url = reverse('note')
-        self.update_note_url = reverse('note')
-        self.create_label_url = reverse('label_lc')
-        self.get_label_url = reverse('label_lc')
+        self.note_url = reverse('note')
+        self.label_url = reverse('label_lc')
         self.get_is_archive_url = reverse('archive')
         self.get_is_trash_url = reverse('trash')
 
@@ -26,6 +21,17 @@ class TestSetUp(APITestCase):
             "mob_num": 981234567
 
         }
+
+        self.empty_registration_user_data = {}
+
+        self.invalid_registration_user_data = {
+            'email': 'email@gmail.com',
+            'username': 123,
+            "last_name": "biranwar",
+            "location": "pune",
+            "mob_num": "981234567"
+        }
+
 
         self.fake = Faker()
         self.regist_user_data = {
@@ -43,9 +49,23 @@ class TestSetUp(APITestCase):
             'password': "milan",
         }
 
+        self.empty_login_user_data = {}
+
+        self.invalid_login_user_data = {
+             'email': 'email@gmail.com',
+            'password': "milan",
+        }
+
         self.create_note_data = {
             "title": "u have meet tomorrow",
             "description": "do attained",
+        }
+
+        self.create_empty_note_data = {}
+
+        self.create_note_data_with_invalid = {
+            "title": 123,
+            'password': "milan",
         }
 
         self.update_note_data = {
@@ -56,6 +76,8 @@ class TestSetUp(APITestCase):
         self.create_label_data = {
             "label_name": "meeting"
         }
+
+        self.invalid_label_data = {"label_name1": "meeting"}
 
         self.update_label_data = {
             "label_name": "meeting cancelled"

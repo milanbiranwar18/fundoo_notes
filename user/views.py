@@ -49,8 +49,7 @@ class Login(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             login(request, serializer.context.get("user"))
-            # user = serializer.context.get("user")
-            user = User.objects.get(username=serializer.data.get("username"))
+            user = serializer.context.get("user")
             token = JWT().encode(data={"user_id": user.id})
             return Response({"Message": "User Login Successfully", "token":token, "status": 201})
         except Exception as e:
