@@ -77,7 +77,7 @@ class TestSetUp(APITestCase):
             "label_name": "meeting"
         }
 
-        self.invalid_label_data = {"label_name1": "meeting"}
+        self.update_label_data_with_invalid_id = {"label_name": "meeting cancelled"}
 
         self.update_label_data = {
             "label_name": "meeting cancelled"

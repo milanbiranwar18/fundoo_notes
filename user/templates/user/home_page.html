@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home Page</title>
+</head>
+{% extends 'user/base.html'%}
+{% block content %}
+<body>
+<h2 class="text-center alert alert-info">Home Page</h2>
+
+<form action="" method="post" novalidate>
+    <h2 >User Information</h2>
+    <label>User Id - </label >{{user.id}}<br>
+    <label>First Name - </label >{{user.first_name}}<br>
+    <label>Last Name - </label >{{user.last_name}}<br>
+    <label>Username - </label >{{user.username}}<br>
+    <label>Mobile Number - </label >{{user.mob_num}}<br>
+    <label>Location - </label >{{user.location}}<br>
+
+</form>
+    <br><br>
+    <a href="{% url 'user_logout' %}">Logout</a> <br><br>
+</body>
+{% endblock content %}
+</html>

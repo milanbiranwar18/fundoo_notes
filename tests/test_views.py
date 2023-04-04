@@ -156,7 +156,7 @@ class NoteViewsTestCase(TestSetUp):
                                login_user_data=self.login_user_data)
         response = self.client.post(self.note_url, self.create_note_data, **headers)
         pk = response.data['Data'].get('id')
-        self.delete_note_url = reverse('rd_note', args=[11])
+        self.delete_note_url = reverse('rd_note', args=[32])
         delete_note_api_response = self.client.delete(self.delete_note_url, **headers)
         self.assertEqual(delete_note_api_response.status_code, 400)
 
@@ -185,6 +185,16 @@ class LabelViewsTestCase(TestSetUp):
                                                     format="json")
         self.assertEqual(update_label_api_response.data['status'], 200)
 
+    def test_update_label_with_invalid_id(self):
+        headers = authenticate(client=self.client, registration_user_data=self.registration_user_data,
+                               login_user_data=self.login_user_data)
+        res = self.client.post(self.label_url, self.update_label_data_with_invalid_id, **headers, format="json")
+        pk = res.data['data'].get('id')
+        self.update_label_url = reverse('label_ruc', args=[12])
+        update_label_api_response = self.client.put(self.update_label_url, self.update_label_data, **headers,
+                                                    format="json")
+        self.assertEqual(update_label_api_response.status_code, 400)
+
     def test_delete_label_api(self):
         headers = authenticate(client=self.client, registration_user_data=self.registration_user_data,
                                login_user_data=self.login_user_data)
@@ -193,6 +203,15 @@ class LabelViewsTestCase(TestSetUp):
         self.delete_label_url = reverse('label_ruc', args=[pk])
         delete_label_api_response = self.client.delete(self.delete_label_url, **headers, format="json")
         self.assertEqual(delete_label_api_response.data['status'], 200)
+
+    def test_delete_label_with_invalid_id(self):
+        headers = authenticate(client=self.client, registration_user_data=self.registration_user_data,
+                               login_user_data=self.login_user_data)
+        response = self.client.post(self.label_url, self.create_label_data, **headers, format="json")
+        pk = response.data['data'].get('id')
+        self.delete_label_url = reverse('label_ruc', args=[12])
+        delete_label_api_response = self.client.delete(self.delete_label_url, **headers, format="json")
+        self.assertEqual(delete_label_api_response.status_code, 400)
 
 
 class IsArchiveViewsTestCase(TestSetUp):
@@ -206,6 +225,15 @@ class IsArchiveViewsTestCase(TestSetUp):
         is_archive_api_response = self.client.put(self.is_archive_url, **headers, format="json")
         self.assertEqual(is_archive_api_response.data['status'], 200)
 
+    def test_is_archive_with_invalid_id(self):
+        headers = authenticate(client=self.client, registration_user_data=self.registration_user_data,
+                               login_user_data=self.login_user_data)
+        res = self.client.post(self.note_url, self.create_note_data, **headers, format="json")
+        pk = res.data['Data'].get('id')
+        self.is_archive_url = reverse('archive', args=[12])
+        is_archive_api_response = self.client.put(self.is_archive_url, **headers, format="json")
+        self.assertEqual(is_archive_api_response.status_code, 400)
+
     def test_get_is_archive_api(self):
         headers = authenticate(client=self.client, registration_user_data=self.registration_user_data,
                                login_user_data=self.login_user_data)
@@ -215,6 +243,8 @@ class IsArchiveViewsTestCase(TestSetUp):
         self.client.put(self.is_archive_url, format="json")
         get_isarchive_response = self.client.get(self.get_is_archive_url, **headers, format="json")
         self.assertEqual(get_isarchive_response.data['status'], 200)
+
+
 
 
 class IsTrashViewsTestCase(TestSetUp):
@@ -268,3 +298,4 @@ class CollaboratorViewsTestCase(TestSetUp):
         delete_collaborator_response = self.client.delete(self.collaborator_url, self.add_collaborator_data, **headers,
                                                           format="json")
         self.assertEqual(delete_collaborator_response.data['status'], 200)
+
